@@ -1,60 +1,46 @@
-#importing the libraries and modules for logistic regression
+ # importing libraries and modules for Linear Regression
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.preprocessing import LabelEncoder
 
 #reading the csv file using the pandas library
-dataset = pd.read_csv('IIS\Assignment 3\data\Q3_diabetes_dataset.csv')
+data_set = pd.read_csv('IIS\Assignment 3\data\Q2_insurance_dataset.csv')
 
 #setting up the X and Y matrices
-x=dataset.iloc[:,:-1].values
-y=dataset.iloc[:,-1].values
+x=data_set.iloc[:,:-1].values
+y=data_set.iloc[:,-1].values
 
-#Splitting the data into train and test sets int the 70:30 proportion
-train, test = train_test_split(dataset, test_size=0.3, random_state=42)
-x, y = dataset.iloc[:, :-1], dataset["Outcome"]
-x_train, y_train = train.iloc[:, :-1], train["Outcome"]
-x_test, y_test = test.iloc[:, :-1], test["Outcome"]
+#Encoding the string values to numeric values using the label Encoder
+#Setting up the encoder
+label_encoder_x=LabelEncoder()
+#Encoding the column at 1 index
+x[:,1]=label_encoder_x.fit_transform(x[:,1])
+#Encoding the column at 4 index
+x[:,4]=label_encoder_x.fit_transform(x[:,4])
+#Encoding the column at 5 index
+x[:,5]=label_encoder_x.fit_transform(x[:,5])
 
-#setting up the logistic regression model
-clf = LogisticRegression(random_state=42,max_iter=10000).fit(x_train, y_train)
+#Splitting the data into train and test sets int the 80:20 proportion
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=42)
 
-#predicting the predicted value of y using the test data
-y_pred = clf.predict(x_test)
+#setting up the linear regression model
+model=LinearRegression()
 
-#printing the Y predicted values
-print("Y pred: \n",y_pred)
-print("\n")
+#fitting the model to the training data
+model.fit(X_train,y_train)
 
-y_true = y_test.values.tolist()
+#predicting the test data
+y_predicted = model.predict(X_test)
 
-#printng the confusion matrix
-matrix=confusion_matrix(y_true, y_pred)
-print("PRINTING THE CONFUSION MATRIX :\n",matrix)
+#calculating the mean absolute error
+mae = mean_absolute_error(y_test, y_predicted)
 
-#visualising data
-plt.scatter(x_test['Pregnancies'],y_pred)
-plt.show()
+#calculating the mean squared error, also known as the accuracy
+rmse = mean_squared_error(y_test, y_predicted)
 
-plt.scatter(x_test['Glucose'],y_pred)
-plt.show()
-
-plt.scatter(x_test['BloodPressure'],y_pred)
-plt.show()
-
-plt.scatter(x_test['SkinThickness'],y_pred)
-plt.show()
-
-plt.scatter(x_test['Insulin'],y_pred)
-plt.show()
-
-plt.scatter(x_test['BMI'],y_pred)
-plt.show()
-
-plt.scatter(x_test['DiabetesPedigreeFunction'],y_pred)
-plt.show()
-
-plt.scatter(x_test['Age'],y_pred)
-plt.show()
+#printing the results
+print("Mean ABSOLUTE ERROR: ",mae)
+print("ACCURACY: ",rmse)
